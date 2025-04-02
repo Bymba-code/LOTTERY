@@ -1,0 +1,82 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model lottery {
+  id                                           Int             @id @default(autoincrement())
+  title                                        String?         @db.VarChar(255)
+  image                                        String?         @db.VarChar(255)
+  start_date                                   DateTime?       @db.Timestamp(0)
+  end_date                                     DateTime?       @db.Timestamp(0)
+  lottery_races_lottery_races_lotteryTolottery lottery_races[] @relation("lottery_races_lotteryTolottery")
+  lottery_users_lottery_users_lotteryTolottery lottery_users[] @relation("lottery_users_lotteryTolottery")
+}
+
+model lottery_race_prizes {
+  id                   Int                    @id @default(autoincrement())
+  race                 Int?
+  prize                String?                @db.VarChar(255)
+  person               Int?
+  lottery_races        lottery_races?         @relation(fields: [race], references: [id], onDelete: Cascade, map: "fk_race")
+  lottery_race_winners lottery_race_winners[]
+
+  @@index([race], map: "race_idx")
+}
+
+model lottery_race_winners {
+  id                  Int                  @id @default(autoincrement())
+  race_prize          Int?
+  user                Int?
+  lottery_race_prizes lottery_race_prizes? @relation(fields: [race_prize], references: [id], onDelete: Cascade, map: "fk_race_prize")
+  users               users?               @relation(fields: [user], references: [id], onDelete: Cascade, map: "fk_user")
+
+  @@index([race_prize], map: "race_prize_idx")
+  @@index([user], map: "user_idx")
+}
+
+model lottery_races {
+  id                                     Int                   @id @default(autoincrement())
+  lottery                                Int?
+  race                                   String?               @db.VarChar(100)
+  lottery_race_prizes                    lottery_race_prizes[]
+  lottery_lottery_races_lotteryTolottery lottery?              @relation("lottery_races_lotteryTolottery", fields: [lottery], references: [id], onDelete: Cascade, map: "fk_lottery")
+
+  @@index([lottery], map: "lottery_idx")
+}
+
+model lottery_users {
+  id                                     Int       @id @default(autoincrement())
+  lottery                                Int?
+  user                                   Int?
+  ebarimt_img                            String?   @db.VarChar(255)
+  image                                  String?   @db.VarChar(255)
+  isAllow                                Int?
+  date                                   DateTime? @db.Timestamp(0)
+  lottery_lottery_users_lotteryTolottery lottery?  @relation("lottery_users_lotteryTolottery", fields: [lottery], references: [id], onDelete: Cascade, map: "fk_lottery_constraint")
+  users                                  users?    @relation(fields: [user], references: [id], onDelete: Cascade, map: "fk_user_constraint")
+
+  @@index([lottery], map: "lottery_idx")
+  @@index([user], map: "user_idx")
+}
+
+model users {
+  id                   Int                    @id @default(autoincrement())
+  firstname            String?                @db.VarChar(100)
+  lastname             String?                @db.VarChar(100)
+  phone                String?                @db.VarChar(15)
+  password             String?                @db.VarChar(500)
+  role                 users_role?
+  create_date          DateTime?              @db.Timestamp(0)
+  lottery_race_winners lottery_race_winners[]
+  lottery_users        lottery_users[]
+}
+
+enum users_role {
+  admin
+  user
+}
